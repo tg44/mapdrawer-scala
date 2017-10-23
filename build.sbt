@@ -13,3 +13,5 @@ libraryDependencies ++= Seq(
   "org.scodec" %% "scodec-akka" % "0.3.0",
   "org.scalatest" %% "scalatest" % "3.0.3" % Test
 )
+
+mainClass in assembly := Some("Main")
