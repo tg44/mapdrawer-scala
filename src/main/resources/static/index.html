@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <style>
+        #mymap{border:1px solid red;}
+    </style>
+
+    <script>
+
+
+        function drawCircle(ctx, point) {
+            ctx.moveTo(point.x, point.y);
+            ctx.strokeStyle = "#096";
+            ctx.arc(point.x,point.y,6,0,2*Math.PI);
+            ctx.stroke();
+        }
+
+        function drawTriangle(ctx, point) {
+            var r = 4;
+            ctx.beginPath();
+            ctx.strokeStyle = "#960";
+            ctx.moveTo(point.x+r, point.y+r);
+            ctx.lineTo(point.x, point.y-r);
+            ctx.lineTo(point.x-r, point.y+r);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        function drawMapObject(ctx, element) {
+            var r = 6;
+            ctx.save();
+            if(element.age >50 ) ctx.globalAlpha = Math.max(10/(element.age-50),0.1);
+            ctx.fillText  (element.name, element.coordinate.x+r, element.coordinate.y-r);
+            if(element.tagType === "anchor") {
+                drawTriangle(ctx, element.coordinate);
+            } else {
+                drawCircle(ctx, element.coordinate);
+            }
+            ctx.restore()
+        }
+
+        function render(data) {
+            var canvas = document.getElementById("mymap");
+
+            if (canvas.getContext) {
+                var ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font         = 'Italic 12px Sans-Serif';
+                ctx.textBaseline = 'Top';
+                data.forEach(function(element){drawMapObject(ctx, element)});
+            } else {
+                alert("not supported browser")
+            }
+        }
+
+        var data = [
+                        {
+                            "name": "test",
+                            "coordinate": {
+                                "x": 100,
+                                "y": 100
+                            },
+                            "tagType": "anchor",
+                            "age": 0,
+                            "stability": 100
+                        },
+                        {
+                            "name": "test2",
+                            "coordinate": {
+                                "x": 400,
+                                "y": 200
+                            },
+                            "tagType": "moving",
+                            "age": 100,
+                            "stability": 100
+                        }
+
+                    ];
+        function randomCoords() {
+          return {
+              x: Math.floor(Math.random() * 600) + 1,
+              y: Math.floor(Math.random() * 600) + 1
+          };
+        }
+
+        function refreshTest() {
+            data.forEach(function(element){
+                element.coordinate = randomCoords();
+                element.age = Math.floor(Math.random() * 100);
+            });
+            render(data);
+        }
+
+        function refresh() {
+            var http_request = new XMLHttpRequest();
+            http_request.onreadystatechange = function(){
+                if (http_request.readyState == 4  ){
+                    // Javascript function JSON.parse to parse JSON data
+                    var data = JSON.parse(http_request.responseText);
+                    render(data);
+                }
+            };
+            http_request.open("GET", "/api/data", true);
+            http_request.send();
+        }
+
+    </script>
+
+</head>
+<body>
+
+<div>
+    <button onclick="refreshTest()">Click me for test</button>
+    <button onclick="refresh()">Click me for real data</button>
+</div>
+<canvas id="mymap" width="600" height="600"></canvas>
+<script>
+    render(data);
+</script>
+
+</body>
+</html>

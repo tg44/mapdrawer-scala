@@ -13,7 +13,7 @@ class MapActor(anchors: Seq[Anchor]) extends Actor {
     case data: AnchorData =>
       map += data.movingTagName -> MapActor.addNewData(data, map.getOrElse(data.movingTagName, Seq()))
     case MovingTagRequest =>
-      map.toList.flatMap(MapActor.createMapObject(_, anchors, System.currentTimeMillis()))
+      sender ! map.toList.flatMap(MapActor.createMapObject(_, anchors, System.currentTimeMillis()))
   }
 }
 
